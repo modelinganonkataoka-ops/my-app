@@ -57,7 +57,10 @@
     <div class="mode-tabs-wrapper">
       <div class="mode-tabs">
         <button id="tab-digital" class="tab-btn active">
-          <span>🎮</span> 3Dデジタルでまなぶ
+          <span>📖</span> じっくり練習
+        </button>
+        <button id="tab-game" class="tab-btn">
+          <span>⚡</span> Kahoot!ふう対戦ゲーム
         </button>
         <button id="tab-print" class="tab-btn">
           <span>🖨️</span> まなびプリント（いんさつ）
@@ -188,7 +191,172 @@
     </div>
 
     <!-- ====================================================================
-         モード 2: まなびプリント（印刷・紙学習）ビュー
+         モード 2: Kahoot! スタイル ゲーム対戦ビュー
+         ==================================================================== -->
+    <div id="game-view" class="game-view">
+      <div class="game-container">
+        
+        <!-- 1. ゲームロビー画面 -->
+        <div id="game-lobby-panel" class="game-lobby-panel">
+          <div class="game-badge">⚡ スピード ＆ コンボバトル</div>
+          <h2 class="lobby-title">Kahoot! ふう クイズバトル！</h2>
+          <p class="lobby-desc">すばやく正解するほど高得点！ライバルと対決してみんなで表彰台を目指そう！</p>
+
+          <div class="lobby-form">
+            <div class="form-group">
+              <label for="player-nickname">🏷️ あなたのニックネーム：</label>
+              <input type="text" id="player-nickname" class="player-input" value="チャレンジャー" maxlength="10">
+            </div>
+
+            <div>
+              <div class="rivals-list-title">👥 今回の対戦ライバル（参加者）：</div>
+              <div class="rivals-grid">
+                <div class="rival-card">
+                  <span class="rival-avatar">🐰</span>
+                  <span class="rival-name">うさぎちゃん</span>
+                  <span class="rival-status">● じゅんびOK</span>
+                </div>
+                <div class="rival-card">
+                  <span class="rival-avatar">🐻</span>
+                  <span class="rival-name">くまごろう</span>
+                  <span class="rival-status">● じゅんびOK</span>
+                </div>
+                <div class="rival-card">
+                  <span class="rival-avatar">🦊</span>
+                  <span class="rival-name">きつねまる</span>
+                  <span class="rival-status">● じゅんびOK</span>
+                </div>
+                <div class="rival-card">
+                  <span class="rival-avatar">🐱</span>
+                  <span class="rival-name">みけねこ</span>
+                  <span class="rival-status">● じゅんびOK</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-start-game" class="btn-start-game">
+            <span>🚀</span> バトルスタート！
+          </button>
+        </div>
+
+        <!-- 2. 対戦アリーナ画面（クイズ出題） -->
+        <div id="game-arena-panel" class="game-arena-panel">
+          
+          <div class="arena-header">
+            <div class="arena-meta">
+              <span id="arena-q-num" class="arena-q-num">第 1 / 5 問</span>
+              <span id="arena-streak" class="arena-streak" style="display:none;">🔥 STREAK x1</span>
+            </div>
+            <div id="arena-score" class="arena-score-display">0 pts</div>
+          </div>
+
+          <!-- タイマーバー -->
+          <div class="timer-container">
+            <div id="game-timer-fill" class="timer-fill"></div>
+          </div>
+
+          <!-- 問題文エリア -->
+          <div class="arena-question-area">
+            <div id="game-timer-circle" class="timer-circle-badge">15</div>
+            <h2 id="arena-question-text" class="arena-question-text">もんだいを 読み込み中...</h2>
+          </div>
+
+          <!-- Kahoot! 4色ボタン -->
+          <div class="kahoot-buttons-grid">
+            <button class="kahoot-btn k-red" data-index="0">
+              <div class="k-symbol">▲</div>
+              <div class="k-text" id="k-opt-0">選択肢 1</div>
+            </button>
+            <button class="kahoot-btn k-blue" data-index="1">
+              <div class="k-symbol">◆</div>
+              <div class="k-text" id="k-opt-1">選択肢 2</div>
+            </button>
+            <button class="kahoot-btn k-yellow" data-index="2">
+              <div class="k-symbol">●</div>
+              <div class="k-text" id="k-opt-2">選択肢 3</div>
+            </button>
+            <button class="kahoot-btn k-green" data-index="3">
+              <div class="k-symbol">■</div>
+              <div class="k-text" id="k-opt-3">選択肢 4</div>
+            </button>
+          </div>
+
+          <!-- ラウンド結果オーバーレイ -->
+          <div id="round-overlay" class="round-overlay">
+            <div id="round-icon" class="round-status-icon">⭕️</div>
+            <div id="round-title" class="round-status-title">せいかい！</div>
+            <div id="round-pts" class="round-pts-gained">+950 pts</div>
+            <div class="round-bonus-tags">
+              <span id="tag-speed" class="bonus-tag">⚡ スピードボーナス</span>
+              <span id="tag-streak" class="bonus-tag">🔥 連続正解ボーナス</span>
+            </div>
+            <div id="round-explain" class="round-explain-box">解説文</div>
+            <button id="btn-round-next" class="btn-round-next">順位表（リーダーボード）をみる ➔</button>
+          </div>
+
+        </div>
+
+        <!-- 3. リーダーボード（順位表）画面 -->
+        <div id="game-leaderboard-panel" class="game-leaderboard-panel">
+          <h2 class="leaderboard-title">🏆 リーダーボード（現在の順位）</h2>
+          
+          <div id="leaderboard-list" class="leaderboard-list">
+            <!-- JavaScriptで動的生成 -->
+          </div>
+
+          <button id="btn-lb-next" class="btn-primary">つぎの問題へ進む ➔</button>
+        </div>
+
+        <!-- 4. 表彰台（Podium）最終結果画面 -->
+        <div id="game-podium-panel" class="game-podium-panel">
+          <h2 class="podium-title">🎊 表彰式（Podium） 🎊</h2>
+          <p class="podium-subtitle">バトル終了！全問チャレンジしたみんな、おつかれさま！</p>
+
+          <div class="podium-stage-wrap">
+            <!-- 2位 -->
+            <div class="podium-col rank-2">
+              <div class="podium-user-info">
+                <span class="podium-avatar" id="podium-avatar-2">🐰</span>
+                <span class="podium-name" id="podium-name-2">うさぎちゃん</span>
+                <span class="podium-score" id="podium-score-2">2,800 pts</span>
+              </div>
+              <div class="podium-block">2</div>
+            </div>
+
+            <!-- 1位 -->
+            <div class="podium-col rank-1">
+              <div class="podium-user-info">
+                <span class="podium-crown">👑</span>
+                <span class="podium-avatar" id="podium-avatar-1">チャレンジャー</span>
+                <span class="podium-name" id="podium-name-1">チャレンジャー</span>
+                <span class="podium-score" id="podium-score-1">3,450 pts</span>
+              </div>
+              <div class="podium-block">1</div>
+            </div>
+
+            <!-- 3位 -->
+            <div class="podium-col rank-3">
+              <div class="podium-user-info">
+                <span class="podium-avatar" id="podium-avatar-3">🐻</span>
+                <span class="podium-name" id="podium-name-3">くまごろう</span>
+                <span class="podium-score" id="podium-score-3">2,100 pts</span>
+              </div>
+              <div class="podium-block">3</div>
+            </div>
+          </div>
+
+          <div class="podium-actions">
+            <button id="btn-replay-game" class="btn-primary">🔄 もう一度バトルする！</button>
+            <button id="btn-back-study" class="btn-secondary">📖 じっくり練習に戻る</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         モード 3: まなびプリント（印刷・紙学習）ビュー
          ==================================================================== -->
     <div id="print-view" class="print-view">
       

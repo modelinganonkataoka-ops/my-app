@@ -1210,6 +1210,51 @@ class SoundFX {
       this.playTone(n, 'sine', durs[i], times[i]);
     });
   }
+
+  // --- ゲームモード用 効果音 ---
+  playTick() {
+    this.init();
+    this.playTone(800, 'triangle', 0.03, 0);
+  }
+
+  playHurryTick() {
+    this.init();
+    this.playTone(1200, 'square', 0.04, 0);
+  }
+
+  playTimeUp() {
+    this.init();
+    this.playTone(220, 'sawtooth', 0.4, 0);
+    this.playTone(180, 'sawtooth', 0.5, 0.15);
+  }
+
+  playStreak() {
+    this.init();
+    // シャキーン！高揚感のあるアルペジオ
+    this.playTone(659.25, 'triangle', 0.08, 0);
+    this.playTone(880.00, 'triangle', 0.08, 0.06);
+    this.playTone(1318.51, 'triangle', 0.2, 0.12);
+  }
+
+  playDrumRoll() {
+    this.init();
+    // ドラムロール風の小太鼓タタタタ…ジャン！
+    for (let i = 0; i < 8; i++) {
+      this.playTone(180 + (i % 2) * 40, 'triangle', 0.03, i * 0.05);
+    }
+    this.playTone(523.25, 'sine', 0.25, 0.45);
+  }
+
+  playCheer() {
+    this.init();
+    // 勝利の盛大なファンファーレ
+    const notes = [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50];
+    const times = [0, 0.12, 0.24, 0.36, 0.5, 0.7];
+    const durs = [0.08, 0.08, 0.08, 0.12, 0.15, 0.6];
+    notes.forEach((n, i) => {
+      this.playTone(n, 'triangle', durs[i], times[i]);
+    });
+  }
 }
 
 // ==========================================================================
@@ -1615,7 +1660,511 @@ class MascotStage {
 }
 
 // ==========================================================================
-// 4. アプリケーション本体・制御ロジック
+// 4. Kahoot! スタイル バトルゲームシステム (KahootBattleGame)
+// ==========================================================================
+class KahootBattleGame {
+  constructor(app) {
+    this.app = app;
+    this.soundFX = app.soundFX;
+
+    this.playerName = 'チャレンジャー';
+    this.rivals = [
+      { name: 'うさぎちゃん', avatar: '🐰', score: 0, prevRank: 0 },
+      { name: 'くまごろう', avatar: '🐻', score: 0, prevRank: 0 },
+      { name: 'きつねまる', avatar: '🦊', score: 0, prevRank: 0 },
+      { name: 'みけねこ', avatar: '🐱', score: 0, prevRank: 0 }
+    ];
+
+    this.questions = [];
+    this.currentIndex = 0;
+    this.playerScore = 0;
+    this.playerStreak = 0;
+    this.playerPrevRank = 1;
+
+    this.totalTime = 15;
+    this.remainTime = 15;
+    this.timerInterval = null;
+    this.answered = false;
+
+    this.initDOM();
+  }
+
+  get mascot() {
+    return this.app.mascot;
+  }
+
+  initDOM() {
+    this.lobbyPanel = document.getElementById('game-lobby-panel');
+    this.arenaPanel = document.getElementById('game-arena-panel');
+    this.leaderboardPanel = document.getElementById('game-leaderboard-panel');
+    this.podiumPanel = document.getElementById('game-podium-panel');
+
+    this.inputNickname = document.getElementById('player-nickname');
+    this.btnStartGame = document.getElementById('btn-start-game');
+    this.btnRoundNext = document.getElementById('btn-round-next');
+    this.btnLbNext = document.getElementById('btn-lb-next');
+    this.btnReplayGame = document.getElementById('btn-replay-game');
+    this.btnBackStudy = document.getElementById('btn-back-study');
+
+    // 4色ボタン
+    this.kahootButtons = document.querySelectorAll('.kahoot-btn');
+    this.kahootButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        this.handlePlayerAnswer(idx);
+      });
+    });
+
+    if (this.btnStartGame) {
+      this.btnStartGame.addEventListener('click', () => {
+        this.soundFX.playClick();
+        this.startNewGame();
+      });
+    }
+
+    if (this.btnRoundNext) {
+      this.btnRoundNext.addEventListener('click', () => {
+        this.soundFX.playClick();
+        this.showLeaderboard();
+      });
+    }
+
+    if (this.btnLbNext) {
+      this.btnLbNext.addEventListener('click', () => {
+        this.soundFX.playClick();
+        this.currentIndex++;
+        if (this.currentIndex < this.questions.length) {
+          this.startQuestion();
+        } else {
+          this.showPodium();
+        }
+      });
+    }
+
+    if (this.btnReplayGame) {
+      this.btnReplayGame.addEventListener('click', () => {
+        this.soundFX.playClick();
+        this.showLobby();
+      });
+    }
+
+    if (this.btnBackStudy) {
+      this.btnBackStudy.addEventListener('click', () => {
+        this.app.switchMode('digital');
+      });
+    }
+  }
+
+  showLobby() {
+    this.stopTimer();
+    if (this.lobbyPanel) this.lobbyPanel.style.display = 'block';
+    if (this.arenaPanel) this.arenaPanel.style.display = 'none';
+    if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'none';
+    if (this.podiumPanel) this.podiumPanel.style.display = 'none';
+  }
+
+  onConfigChanged() {
+    if (this.arenaPanel && this.arenaPanel.style.display === 'flex') {
+      this.showLobby();
+    }
+  }
+
+  startNewGame() {
+    const rawName = this.inputNickname ? this.inputNickname.value.trim() : '';
+    this.playerName = rawName || 'チャレンジャー';
+
+    // 該当学年・科目の問題を取得
+    const gradeData = QUESTION_DATABASE[this.app.currentGrade];
+    const rawList = (gradeData && gradeData[this.app.currentSubject]) ? gradeData[this.app.currentSubject] : [];
+    
+    // シャッフルして5問
+    this.questions = [...rawList].sort(() => Math.random() - 0.5).slice(0, 5);
+    this.currentIndex = 0;
+    this.playerScore = 0;
+    this.playerStreak = 0;
+    this.playerPrevRank = 1;
+
+    // ライバルのスコアもリセット
+    this.rivals.forEach((r, idx) => {
+      r.score = 0;
+      r.prevRank = idx + 2;
+    });
+
+    if (this.lobbyPanel) this.lobbyPanel.style.display = 'none';
+    if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'none';
+    if (this.podiumPanel) this.podiumPanel.style.display = 'none';
+    if (this.arenaPanel) this.arenaPanel.style.display = 'flex';
+
+    this.startQuestion();
+  }
+
+  startQuestion() {
+    this.answered = false;
+    this.stopTimer();
+
+    const q = this.questions[this.currentIndex];
+    const total = this.questions.length;
+
+    if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'none';
+    if (this.arenaPanel) this.arenaPanel.style.display = 'flex';
+    const overlay = document.getElementById('round-overlay');
+    if (overlay) overlay.classList.remove('show');
+
+    // ヘッダー情報
+    const qNumEl = document.getElementById('arena-q-num');
+    if (qNumEl) qNumEl.textContent = `第 ${this.currentIndex + 1} / ${total} 問`;
+
+    const scoreEl = document.getElementById('arena-score');
+    if (scoreEl) scoreEl.textContent = `${this.playerScore.toLocaleString()} pts`;
+
+    // ストリーク
+    const streakEl = document.getElementById('arena-streak');
+    if (streakEl) {
+      if (this.playerStreak >= 2) {
+        streakEl.style.display = 'inline-flex';
+        streakEl.textContent = `🔥 STREAK x${this.playerStreak}`;
+      } else {
+        streakEl.style.display = 'none';
+      }
+    }
+
+    // 問題文
+    const qTextEl = document.getElementById('arena-question-text');
+    if (qTextEl) qTextEl.textContent = q.question;
+
+    // 4色ボタンテキストリセット
+    q.options.forEach((opt, idx) => {
+      const textEl = document.getElementById(`k-opt-${idx}`);
+      if (textEl) textEl.textContent = opt;
+    });
+
+    this.kahootButtons.forEach((btn) => {
+      btn.disabled = false;
+      btn.className = btn.className.replace(/ dimmed| correct-highlight/g, '');
+    });
+
+    // 3Dマスコット吹き出し
+    this.app.setSpeechBubble('いそげ！ すばやく答えてね！⏱️');
+
+    // タイマースタート
+    this.remainTime = this.totalTime;
+    this.updateTimerDisplay();
+
+    let lastSec = Math.ceil(this.remainTime);
+
+    this.timerInterval = setInterval(() => {
+      this.remainTime -= 0.1;
+      if (this.remainTime <= 0) {
+        this.remainTime = 0;
+        this.updateTimerDisplay();
+        this.stopTimer();
+        this.handleTimeUp();
+        return;
+      }
+
+      this.updateTimerDisplay();
+
+      const currentSec = Math.ceil(this.remainTime);
+      if (currentSec !== lastSec) {
+        lastSec = currentSec;
+        if (currentSec <= 5) {
+          this.soundFX.playHurryTick();
+        } else {
+          this.soundFX.playTick();
+        }
+      }
+    }, 100);
+  }
+
+  updateTimerDisplay() {
+    const pct = Math.max(0, (this.remainTime / this.totalTime) * 100);
+    const fillEl = document.getElementById('game-timer-fill');
+    const circleEl = document.getElementById('game-timer-circle');
+
+    if (fillEl) {
+      fillEl.style.width = `${pct}%`;
+      if (this.remainTime <= 5) {
+        fillEl.classList.add('danger');
+      } else {
+        fillEl.classList.remove('danger');
+      }
+    }
+
+    if (circleEl) {
+      const sec = Math.ceil(this.remainTime);
+      circleEl.textContent = `${sec}`;
+      if (this.remainTime <= 5) {
+        circleEl.classList.add('warning');
+      } else {
+        circleEl.classList.remove('warning');
+      }
+    }
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  handlePlayerAnswer(chosenIdx) {
+    if (this.answered) return;
+    this.answered = true;
+    this.stopTimer();
+
+    const q = this.questions[this.currentIndex];
+    const isCorrect = (chosenIdx === q.answerIndex);
+
+    // ライバルたちの得点を計算
+    this.simulateRivalsAnswer(q);
+
+    // ボタンのスタイル更新
+    this.kahootButtons.forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === q.answerIndex) {
+        btn.classList.add('correct-highlight');
+      } else {
+        btn.classList.add('dimmed');
+      }
+    });
+
+    // 得点計算
+    let pointsGained = 0;
+    let speedBonus = 0;
+    let streakBonus = 0;
+
+    if (isCorrect) {
+      this.playerStreak++;
+      const basePts = 500;
+      speedBonus = Math.round(500 * (this.remainTime / this.totalTime));
+      streakBonus = (this.playerStreak >= 3) ? 200 : (this.playerStreak >= 2 ? 100 : 0);
+      pointsGained = basePts + speedBonus + streakBonus;
+      this.playerScore += pointsGained;
+
+      this.soundFX.playCorrect();
+      if (this.playerStreak >= 3) {
+        setTimeout(() => this.soundFX.playStreak(), 260);
+      }
+      if (this.mascot) this.mascot.celebrate();
+      this.app.setSpeechBubble('ナイス！ 超ハイスピード！⚡');
+    } else {
+      this.playerStreak = 0;
+      this.soundFX.playWrong();
+      if (this.mascot) this.mascot.oops();
+      this.app.setSpeechBubble('あちゃ〜！ つぎで挽回だ！');
+    }
+
+    // スコア更新
+    const scoreEl = document.getElementById('arena-score');
+    if (scoreEl) scoreEl.textContent = `${this.playerScore.toLocaleString()} pts`;
+
+    // ラウンド結果オーバーレイを表示
+    setTimeout(() => {
+      this.showRoundResult(isCorrect, pointsGained, speedBonus, streakBonus, q);
+    }, 700);
+  }
+
+  handleTimeUp() {
+    if (this.answered) return;
+    this.answered = true;
+    this.stopTimer();
+
+    const q = this.questions[this.currentIndex];
+    this.simulateRivalsAnswer(q);
+
+    this.kahootButtons.forEach((btn, idx) => {
+      btn.disabled = true;
+      if (idx === q.answerIndex) {
+        btn.classList.add('correct-highlight');
+      } else {
+        btn.classList.add('dimmed');
+      }
+    });
+
+    this.playerStreak = 0;
+    this.soundFX.playTimeUp();
+    if (this.mascot) this.mascot.oops();
+    this.app.setSpeechBubble('じかんぎれ！ つぎは急ごう！⏱️');
+
+    setTimeout(() => {
+      this.showRoundResult(false, 0, 0, 0, q, true);
+    }, 700);
+  }
+
+  simulateRivalsAnswer(q) {
+    this.rivals.forEach((r) => {
+      // 70%〜85%の確率で正解
+      const correctProb = 0.75 + Math.random() * 0.15;
+      const rivalCorrect = Math.random() < correctProb;
+      if (rivalCorrect) {
+        const timeSpent = 2 + Math.random() * 11;
+        const remain = Math.max(0, this.totalTime - timeSpent);
+        const base = 500;
+        const spd = Math.round(500 * (remain / this.totalTime));
+        r.score += (base + spd);
+      }
+    });
+  }
+
+  showRoundResult(isCorrect, pts, speedBonus, streakBonus, q, isTimeUp = false) {
+    const overlay = document.getElementById('round-overlay');
+    const iconEl = document.getElementById('round-icon');
+    const titleEl = document.getElementById('round-title');
+    const ptsEl = document.getElementById('round-pts');
+    const tagSpeed = document.getElementById('tag-speed');
+    const tagStreak = document.getElementById('tag-streak');
+    const explainEl = document.getElementById('round-explain');
+
+    if (!overlay) return;
+
+    if (isCorrect) {
+      iconEl.textContent = '⭕️';
+      titleEl.textContent = 'せいかい！ かんぺき！';
+      titleEl.style.color = '#10b981';
+      ptsEl.textContent = `+${pts.toLocaleString()} pts`;
+      ptsEl.style.display = 'block';
+
+      if (tagSpeed) {
+        tagSpeed.style.display = (speedBonus > 200) ? 'inline-block' : 'none';
+        tagSpeed.textContent = `⚡ スピードボーナス +${speedBonus}`;
+      }
+
+      if (tagStreak) {
+        tagStreak.style.display = (streakBonus > 0) ? 'inline-block' : 'none';
+        tagStreak.textContent = `🔥 連続正解ボーナス +${streakBonus}`;
+      }
+    } else {
+      iconEl.textContent = isTimeUp ? '⏰' : '❌';
+      titleEl.textContent = isTimeUp ? 'タイムアップ！ 時間切れ' : 'おしい！ 不正解';
+      titleEl.style.color = '#ef4444';
+      ptsEl.style.display = 'none';
+      if (tagSpeed) tagSpeed.style.display = 'none';
+      if (tagStreak) tagStreak.style.display = 'none';
+    }
+
+    const correctAnsText = q.options[q.answerIndex];
+    if (explainEl) {
+      explainEl.innerHTML = `正解は <b>「${correctAnsText}」</b> です。<br>${q.explanation}`;
+    }
+
+    overlay.classList.add('show');
+  }
+
+  showLeaderboard() {
+    if (this.arenaPanel) this.arenaPanel.style.display = 'none';
+    if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'block';
+    this.soundFX.playDrumRoll();
+
+    const players = [
+      { name: this.playerName, avatar: '😎', score: this.playerScore, isPlayer: true, prevRank: this.playerPrevRank },
+      ...this.rivals.map(r => ({ ...r, isPlayer: false }))
+    ];
+
+    players.sort((a, b) => b.score - a.score);
+
+    const listContainer = document.getElementById('leaderboard-list');
+    if (listContainer) {
+      listContainer.innerHTML = '';
+
+      players.forEach((p, idx) => {
+        const currentRank = idx + 1;
+        const row = document.createElement('div');
+        row.className = `leaderboard-row ${p.isPlayer ? 'is-player' : ''} ${currentRank === 1 ? 'rank-1' : ''}`;
+
+        let changeBadge = '';
+        if (p.prevRank > 0) {
+          if (p.prevRank > currentRank) {
+            changeBadge = `<span class="lb-change up">▲ ${p.prevRank - currentRank} UP</span>`;
+          } else if (p.prevRank < currentRank) {
+            changeBadge = `<span class="lb-change same">▼</span>`;
+          } else {
+            changeBadge = `<span class="lb-change same">-</span>`;
+          }
+        }
+
+        if (p.isPlayer) {
+          this.playerPrevRank = currentRank;
+        } else {
+          const rivalObj = this.rivals.find(r => r.name === p.name);
+          if (rivalObj) rivalObj.prevRank = currentRank;
+        }
+
+        row.innerHTML = `
+          <div class="lb-left">
+            <span class="lb-rank">#${currentRank}</span>
+            <span class="lb-avatar">${p.avatar}</span>
+            <span class="lb-name">${p.name} ${p.isPlayer ? '(あなた)' : ''}</span>
+          </div>
+          <div class="lb-right">
+            ${changeBadge}
+            <span class="lb-score">${p.score.toLocaleString()} pts</span>
+          </div>
+        `;
+        listContainer.appendChild(row);
+      });
+    }
+
+    const isLast = (this.currentIndex + 1 >= this.questions.length);
+    if (this.btnLbNext) {
+      this.btnLbNext.textContent = isLast ? '🏆 最終結果（表彰台）をみる ➔' : 'つぎの問題へ進む ➔';
+    }
+  }
+
+  showPodium() {
+    if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'none';
+    if (this.podiumPanel) this.podiumPanel.style.display = 'block';
+
+    const players = [
+      { name: this.playerName, avatar: '😎', score: this.playerScore, isPlayer: true },
+      ...this.rivals.map(r => ({ ...r, isPlayer: false }))
+    ];
+    players.sort((a, b) => b.score - a.score);
+
+    const first = players[0];
+    const second = players[1];
+    const third = players[2];
+
+    const av1 = document.getElementById('podium-avatar-1');
+    const nm1 = document.getElementById('podium-name-1');
+    const sc1 = document.getElementById('podium-score-1');
+    if (av1) av1.textContent = first.avatar;
+    if (nm1) nm1.textContent = `${first.name}${first.isPlayer ? ' (あなた)' : ''}`;
+    if (sc1) sc1.textContent = `${first.score.toLocaleString()} pts`;
+
+    const av2 = document.getElementById('podium-avatar-2');
+    const nm2 = document.getElementById('podium-name-2');
+    const sc2 = document.getElementById('podium-score-2');
+    if (av2) av2.textContent = second.avatar;
+    if (nm2) nm2.textContent = `${second.name}${second.isPlayer ? ' (あなた)' : ''}`;
+    if (sc2) sc2.textContent = `${second.score.toLocaleString()} pts`;
+
+    const av3 = document.getElementById('podium-avatar-3');
+    const nm3 = document.getElementById('podium-name-3');
+    const sc3 = document.getElementById('podium-score-3');
+    if (av3) av3.textContent = third.avatar;
+    if (nm3) nm3.textContent = `${third.name}${third.isPlayer ? ' (あなた)' : ''}`;
+    if (sc3) sc3.textContent = `${third.score.toLocaleString()} pts`;
+
+    this.soundFX.playCheer();
+
+    // プレイヤーが表彰台（1〜3位）に入っている場合
+    if (players.slice(0, 3).some(p => p.isPlayer)) {
+      if (window.confetti) {
+        window.confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+        setTimeout(() => {
+          window.confetti({ particleCount: 100, angle: 60, spread: 60, origin: { x: 0 } });
+          window.confetti({ particleCount: 100, angle: 120, spread: 60, origin: { x: 1 } });
+        }, 500);
+      }
+      if (this.mascot) this.mascot.celebrate();
+      this.app.setSpeechBubble('表彰台おめでとう！ キミがチャンピオンだ！👑');
+    }
+  }
+}
+
+// ==========================================================================
+// 5. アプリケーション本体・制御ロジック
 // ==========================================================================
 class StudyApp {
   constructor() {
@@ -1643,6 +2192,7 @@ class StudyApp {
 
     this.initDOM();
     this.initMascot();
+    this.game = new KahootBattleGame(this);
     this.loadQuiz();
     this.updateWorksheetPreview();
   }
@@ -1658,11 +2208,16 @@ class StudyApp {
 
     // モード切替タブ
     this.tabDigital = document.getElementById('tab-digital');
+    this.tabGame = document.getElementById('tab-game');
     this.tabPrint = document.getElementById('tab-print');
     this.digitalView = document.getElementById('digital-view');
+    this.gameView = document.getElementById('game-view');
     this.printView = document.getElementById('print-view');
 
     this.tabDigital.addEventListener('click', () => this.switchMode('digital'));
+    if (this.tabGame) {
+      this.tabGame.addEventListener('click', () => this.switchMode('game'));
+    }
     this.tabPrint.addEventListener('click', () => this.switchMode('print'));
 
     // サウンドトグル
@@ -1730,15 +2285,23 @@ class StudyApp {
     this.currentMode = mode;
     this.soundFX.playClick();
 
+    this.tabDigital.classList.remove('active');
+    if (this.tabGame) this.tabGame.classList.remove('active');
+    this.tabPrint.classList.remove('active');
+
+    this.digitalView.style.display = 'none';
+    if (this.gameView) this.gameView.classList.remove('show');
+    this.printView.classList.remove('show');
+
     if (mode === 'digital') {
       this.tabDigital.classList.add('active');
-      this.tabPrint.classList.remove('active');
       this.digitalView.style.display = 'grid';
-      this.printView.classList.remove('show');
+    } else if (mode === 'game') {
+      if (this.tabGame) this.tabGame.classList.add('active');
+      if (this.gameView) this.gameView.classList.add('show');
+      if (this.game) this.game.showLobby();
     } else {
-      this.tabDigital.classList.remove('active');
       this.tabPrint.classList.add('active');
-      this.digitalView.style.display = 'none';
       this.printView.classList.add('show');
       this.updateWorksheetPreview();
     }
@@ -1763,11 +2326,13 @@ class StudyApp {
 
     this.loadQuiz();
     this.updateWorksheetPreview();
+    if (this.game) this.game.onConfigChanged();
   }
 
   onGradeChanged() {
     this.loadQuiz();
     this.updateWorksheetPreview();
+    if (this.game) this.game.onConfigChanged();
   }
 
   loadQuiz() {

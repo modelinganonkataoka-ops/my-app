@@ -1157,6 +1157,7 @@ body {
   .mode-tabs-wrapper,
   .subject-nav,
   .digital-view,
+  .game-view,
   .print-control-card,
   .app-footer,
   #confetti-canvas {
@@ -1210,4 +1211,759 @@ body {
   .ws-answer-sheet .ws-header {
     border-bottom: 3px double #000 !important;
   }
+}
+
+/* ==========================================================================
+   Kahoot! 風 ゲームモード スタイル
+   ========================================================================== */
+.game-view {
+  display: none;
+  width: 100%;
+}
+
+.game-view.show {
+  display: block;
+}
+
+/* 共通ゲームコンテナ */
+.game-container {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 3px solid #e2e8f0;
+  overflow: hidden;
+  position: relative;
+  min-height: 520px;
+}
+
+/* ロビー画面 */
+.game-lobby-panel {
+  padding: 40px 24px;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.game-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #f59e0b, #ec4899);
+  color: white;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+}
+
+.lobby-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.lobby-desc {
+  color: #64748b;
+  font-size: 1.05rem;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.lobby-form {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.player-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  font-size: 1.15rem;
+  font-weight: 700;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.player-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* ライバル（AIプレイヤー）カード */
+.rivals-list-title {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.rivals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+  .rivals-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.rival-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease;
+}
+
+.rival-avatar {
+  font-size: 2rem;
+}
+
+.rival-name {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.rival-status {
+  font-size: 0.7rem;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.btn-start-game {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 16px 40px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #047857, 0 10px 20px rgba(16, 185, 129, 0.4);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  animation: pulseButton 2s infinite ease-in-out;
+}
+
+.btn-start-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #047857, 0 14px 24px rgba(16, 185, 129, 0.4);
+}
+
+.btn-start-game:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #047857;
+}
+
+@keyframes pulseButton {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* ゲームアリーナ（対戦本番） */
+.game-arena-panel {
+  display: none;
+  flex-direction: column;
+  min-height: 540px;
+}
+
+.arena-header {
+  padding: 16px 24px;
+  background: #1e293b;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.arena-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.arena-q-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+}
+
+.arena-streak {
+  background: linear-gradient(90deg, #f97316, #ef4444);
+  color: white;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-weight: 900;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulseStreak 1s infinite alternate;
+}
+
+@keyframes pulseStreak {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+.arena-score-display {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+/* タイマーバー */
+.timer-container {
+  width: 100%;
+  height: 12px;
+  background: #334155;
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  transition: width 0.1s linear, background-color 0.3s;
+}
+
+.timer-fill.danger {
+  background: #ef4444 !important;
+}
+
+/* 問題表示エリア */
+.arena-question-area {
+  padding: 24px 24px 16px;
+  text-align: center;
+  position: relative;
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.timer-circle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-full);
+  background: #1e293b;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  border: 3px solid #38bdf8;
+  transition: all 0.2s;
+}
+
+.timer-circle-badge.warning {
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: heartBeat 0.5s infinite;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.arena-question-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Kahoot! スタイル 4色ボタングリッド
+   ========================================================================== */
+.kahoot-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 16px;
+  padding: 24px;
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .kahoot-buttons-grid {
+    grid-template-columns: 1fr;
+    grid-gap: 12px;
+    padding: 16px;
+  }
+}
+
+.kahoot-btn {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  color: white;
+  font-weight: 800;
+  font-size: 1.25rem;
+  text-align: left;
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  outline: none;
+  user-select: none;
+}
+
+.kahoot-btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+  filter: brightness(1.08);
+}
+
+.kahoot-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.kahoot-btn:disabled {
+  cursor: default;
+}
+
+/* 赤ボタン: 三角 ▲ */
+.kahoot-btn.k-red {
+  background: #e21b3c;
+}
+.kahoot-btn.k-red .k-symbol {
+  background: #b3102c;
+}
+
+/* 青ボタン: ダイヤ ◆ */
+.kahoot-btn.k-blue {
+  background: #1368ce;
+}
+.kahoot-btn.k-blue .k-symbol {
+  background: #0d4fa0;
+}
+
+/* 黄ボタン: 円 ● */
+.kahoot-btn.k-yellow {
+  background: #d89e00;
+}
+.kahoot-btn.k-yellow .k-symbol {
+  background: #ab7c00;
+}
+
+/* 緑ボタン: 四角 ■ */
+.kahoot-btn.k-green {
+  background: #26890c;
+}
+.kahoot-btn.k-green .k-symbol {
+  background: #1b6807;
+}
+
+.k-symbol {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.k-text {
+  flex: 1;
+  line-height: 1.35;
+}
+
+/* ボタン選択・結果表示アニメーション */
+.kahoot-btn.dimmed {
+  opacity: 0.28;
+  filter: grayscale(60%);
+  transform: scale(0.96);
+}
+
+.kahoot-btn.correct-highlight {
+  animation: pulseCorrect 1s infinite alternate;
+  box-shadow: 0 0 0 5px #ffffff, 0 0 20px #10b981 !important;
+  z-index: 2;
+}
+
+@keyframes pulseCorrect {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.06); }
+}
+
+/* ラウンド終了オーバーレイ */
+.round-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.92);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+  animation: fadeIn 0.25s ease;
+}
+
+.round-overlay.show {
+  display: flex;
+}
+
+.round-status-icon {
+  font-size: 5rem;
+  margin-bottom: 12px;
+  animation: bounce 0.6s ease;
+}
+
+.round-status-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.round-pts-gained {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fbbf24;
+  margin-bottom: 16px;
+  text-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+}
+
+.round-bonus-tags {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bonus-tag {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.round-explain-box {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  color: #f1f5f9;
+  max-width: 580px;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.btn-round-next {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 14px 36px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1d4ed8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-round-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1d4ed8;
+}
+
+/* リーダーボード（順位表） */
+.game-leaderboard-panel {
+  display: none;
+  padding: 30px 24px;
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.leaderboard-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.leaderboard-row {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.leaderboard-row.is-player {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  transform: scale(1.02);
+}
+
+.leaderboard-row.rank-1 {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.lb-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lb-rank {
+  font-size: 1.25rem;
+  font-weight: 900;
+  width: 32px;
+  text-align: center;
+  color: #64748b;
+}
+
+.leaderboard-row.rank-1 .lb-rank {
+  color: #d97706;
+}
+
+.lb-avatar {
+  font-size: 1.8rem;
+}
+
+.lb-name {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.lb-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lb-score {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.lb-change {
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.lb-change.up {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.lb-change.same {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* 最終結果・表彰台（Podium） */
+.game-podium-panel {
+  display: none;
+  padding: 40px 20px 30px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 30%, #312e81 0%, #0f172a 100%);
+  color: white;
+  min-height: 520px;
+}
+
+.podium-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  color: #fbbf24;
+}
+
+.podium-subtitle {
+  font-size: 1.05rem;
+  color: #cbd5e1;
+  margin-bottom: 40px;
+}
+
+.podium-stage-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  height: 260px;
+}
+
+.podium-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  animation: riseUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.podium-col.rank-1 {
+  order: 2;
+  animation-delay: 0.4s;
+}
+
+.podium-col.rank-2 {
+  order: 1;
+  animation-delay: 0.2s;
+}
+
+.podium-col.rank-3 {
+  order: 3;
+  animation-delay: 0.0s;
+}
+
+@keyframes riseUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.podium-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.podium-crown {
+  font-size: 2rem;
+  animation: bounce 1.2s infinite;
+}
+
+.podium-avatar {
+  font-size: 2.8rem;
+  margin-bottom: 4px;
+}
+
+.podium-name {
+  font-weight: 900;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+.podium-score {
+  font-size: 0.9rem;
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+/* 表彰台ブロック */
+.podium-block {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.rank-1 .podium-block {
+  height: 150px;
+  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+  color: white;
+  border-top: 4px solid #fde68a;
+}
+
+.rank-2 .podium-block {
+  height: 105px;
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 100%);
+  color: white;
+  border-top: 4px solid #e2e8f0;
+}
+
+.rank-3 .podium-block {
+  height: 75px;
+  background: linear-gradient(180deg, #d97706 0%, #78350f 100%);
+  color: white;
+  border-top: 4px solid #fed7aa;
+}
+
+.podium-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
