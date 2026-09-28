@@ -1,0 +1,1213 @@
+/* ==========================================================================
+   わくわくスタディパーク (WakuWaku Study Park) - スタイルシート
+   ========================================================================== */
+
+:root {
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+  --primary-dark: #3730a3;
+  --secondary: #f59e0b;
+  --accent: #ec4899;
+  
+  --subject-japanese: #ef4444;
+  --subject-japanese-bg: #fef2f2;
+  --subject-japanese-border: #fca5a5;
+
+  --subject-math: #3b82f6;
+  --subject-math-bg: #eff6ff;
+  --subject-math-border: #93c5fd;
+
+  --subject-science: #10b981;
+  --subject-science-bg: #ecfdf5;
+  --subject-science-border: #6ee7b7;
+
+  --subject-social: #f97316;
+  --subject-social-bg: #fff7ed;
+  --subject-social-border: #fdba74;
+
+  --subject-english: #8b5cf6;
+  --subject-english-bg: #f5f3ff;
+  --subject-english-border: #c4b5fd;
+
+  --bg-color: #f0fdf4;
+  --card-bg: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  --shadow-btn: 0 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', 'Yu Gothic', sans-serif;
+  background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #fce7f3 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ユーティリティ */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ヘッダー */
+.app-header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-icon {
+  font-size: 2rem;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+.logo-text h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo-tag {
+  font-size: 0.7rem;
+  background: linear-gradient(90deg, #ec4899, #f59e0b);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 学年セレクター */
+.grade-selector-wrap {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.grade-selector-wrap label {
+  margin-right: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.grade-select {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--primary);
+  cursor: pointer;
+  outline: none;
+  padding: 2px 4px;
+}
+
+/* アイコンボタン */
+.btn-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  border: 2px solid #cbd5e1;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+/* モード切り替えタブ */
+.mode-tabs-wrapper {
+  margin: 16px 0 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.mode-tabs {
+  background: #ffffff;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  display: inline-flex;
+  gap: 6px;
+  border: 2px solid #e2e8f0;
+}
+
+.tab-btn {
+  border: none;
+  background: transparent;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+  color: white;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+  transform: scale(1.02);
+}
+
+/* 科目セレクターバー */
+.subject-nav {
+  margin-bottom: 20px;
+}
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .subject-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 420px) {
+  .subject-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.subject-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+  position: relative;
+  user-select: none;
+}
+
+.subject-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.subject-card.japanese { border-color: var(--subject-japanese-border); }
+.subject-card.math { border-color: var(--subject-math-border); }
+.subject-card.science { border-color: var(--subject-science-border); }
+.subject-card.social { border-color: var(--subject-social-border); }
+.subject-card.english { border-color: var(--subject-english-border); }
+
+.subject-card.active.japanese {
+  background: var(--subject-japanese-bg);
+  border-color: var(--subject-japanese);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.subject-card.active.math {
+  background: var(--subject-math-bg);
+  border-color: var(--subject-math);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.25);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.subject-card.active.science {
+  background: var(--subject-science-bg);
+  border-color: var(--subject-science);
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.subject-card.active.social {
+  background: var(--subject-social-bg);
+  border-color: var(--subject-social);
+  box-shadow: 0 6px 14px rgba(249, 115, 22, 0.25);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.subject-card.active.english {
+  background: var(--subject-english-bg);
+  border-color: var(--subject-english);
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.25);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.subject-emoji {
+  font-size: 1.8rem;
+}
+
+.subject-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.subject-ruby {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* メインコンテンツエリア */
+.main-content {
+  flex: 1;
+  padding-bottom: 40px;
+}
+
+/* デジタル学習ビュー */
+.digital-view {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .digital-view {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 3D キャラクターステージ */
+.stage-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 3px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.stage-header {
+  padding: 12px 16px;
+  background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+  border-bottom: 2px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stage-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-mascot {
+  background: #22c55e;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 320px;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
+  cursor: grab;
+}
+
+.canvas-container:active {
+  cursor: grabbing;
+}
+
+#three-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 3Dステージ内オーバーレイメッセージ */
+.speech-bubble {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid #3b82f6;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1e293b;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: floatSmall 2s ease-in-out infinite;
+  z-index: 5;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #3b82f6 transparent;
+}
+
+.stage-footer {
+  padding: 12px 16px;
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-around;
+  border-top: 2px solid #e2e8f0;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-val {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+/* クイズエリア */
+.quiz-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  border: 3px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quiz-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quiz-badge {
+  background: #e0e7ff;
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.quiz-progress-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.quiz-score-badge {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #d97706;
+  background: #fef3c7;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* プログレスバー */
+.progress-bar-wrap {
+  width: 100%;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: var(--radius-full);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* 問題ボックス */
+.question-box {
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.question-num-tag {
+  position: absolute;
+  top: -14px;
+  left: 16px;
+  background: var(--primary);
+  color: white;
+  padding: 2px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.question-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+/* 4択選択肢 */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 560px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.option-btn {
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 4px 0 #cbd5e1;
+  transition: all 0.15s ease;
+  outline: none;
+  user-select: none;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #cbd5e1;
+  background: #f8fafc;
+}
+
+.option-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #cbd5e1;
+}
+
+.option-key {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: #e2e8f0;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* 正解・不正解の状態 */
+.option-btn.correct {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+  box-shadow: 0 4px 0 #059669 !important;
+}
+
+.option-btn.correct .option-key {
+  background: #10b981;
+  color: white;
+}
+
+.option-btn.incorrect {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+  box-shadow: 0 4px 0 #dc2626 !important;
+  opacity: 0.7;
+}
+
+.option-btn.incorrect .option-key {
+  background: #ef4444;
+  color: white;
+}
+
+/* 解説 & フィードバックエリア */
+.feedback-box {
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.feedback-box.show {
+  display: block;
+}
+
+.feedback-box.correct {
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+}
+
+.feedback-box.incorrect {
+  background: #fef2f2;
+  border: 2px solid #fca5a5;
+}
+
+.feedback-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.feedback-box.correct .feedback-title {
+  color: #15803d;
+}
+
+.feedback-box.incorrect .feedback-title {
+  color: #b91c1c;
+}
+
+.feedback-desc {
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/* アクションボタン */
+.quiz-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 28px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #3730a3;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #3730a3;
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #3730a3;
+}
+
+/* リザルト画面 */
+.result-card {
+  text-align: center;
+  padding: 30px 20px;
+  display: none;
+}
+
+.result-card.show {
+  display: block;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.result-trophy {
+  font-size: 4.5rem;
+  margin-bottom: 12px;
+  animation: bounce 1s infinite alternate;
+}
+
+.result-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.result-message {
+  font-size: 1.1rem;
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+.result-score-panel {
+  display: inline-flex;
+  background: #f8fafc;
+  border: 3px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 16px 32px;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.score-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-lbl {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.score-val {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.result-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #334155;
+  border: 3px solid #cbd5e1;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #cbd5e1;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #cbd5e1;
+}
+
+.btn-secondary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #cbd5e1;
+}
+
+/* ==========================================================================
+   プリント印刷モード
+   ========================================================================== */
+.print-view {
+  display: none;
+}
+
+.print-view.show {
+  display: block;
+}
+
+.print-control-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+  border: 3px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.print-settings {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.setting-item select {
+  padding: 6px 12px;
+  border: 2px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.print-btn-main {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 30px;
+  font-size: 1.15rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #9a3412;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.print-btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #9a3412;
+}
+
+.print-btn-main:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9a3412;
+}
+
+/* A4 用紙プレビュー（Web画面上の表示） */
+.worksheet-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.a4-sheet {
+  background: white;
+  width: 100%;
+  max-width: 820px;
+  min-height: 1100px;
+  padding: 48px;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-sm);
+  border: 1px solid #cbd5e1;
+  box-sizing: border-box;
+  color: #000000;
+  position: relative;
+}
+
+/* ワークシート用紙ヘッダー */
+.ws-header {
+  border-bottom: 3px double #000;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.ws-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.ws-title-group h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.ws-subtitle {
+  font-size: 0.95rem;
+  color: #333;
+  margin-top: 2px;
+}
+
+.ws-score-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: 6px 16px;
+  text-align: center;
+  min-width: 110px;
+}
+
+.ws-score-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+}
+
+.ws-score-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ws-user-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 1.05rem;
+  font-weight: 700;
+  gap: 20px;
+}
+
+.ws-info-field {
+  display: flex;
+  align-items: flex-end;
+}
+
+.ws-line {
+  display: inline-block;
+  border-bottom: 1.5px solid #000;
+  min-width: 80px;
+  margin-left: 4px;
+  height: 1.2em;
+}
+
+.ws-line.name-line {
+  min-width: 220px;
+}
+
+/* 問題リスト */
+.ws-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ws-q-item {
+  page-break-inside: avoid;
+}
+
+.ws-q-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.ws-q-num {
+  background: #000;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.ws-q-body {
+  margin-top: 10px;
+  padding-left: 28px;
+}
+
+.ws-choices-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  border: 1px dashed #666;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  background: #fafafa;
+}
+
+.ws-choice-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ws-answer-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ws-answer-box {
+  width: 200px;
+  height: 44px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 解答・解説ページ用 */
+.ws-answer-sheet {
+  border-top: 4px solid #ef4444;
+}
+
+.ws-answer-sheet .ws-header {
+  border-bottom: 3px double #ef4444;
+}
+
+.ws-answer-sheet .ws-title-group h2 {
+  color: #dc2626;
+}
+
+.ws-ans-item {
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 12px;
+}
+
+.ws-ans-correct {
+  color: #dc2626;
+  font-size: 1.2rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.ws-ans-explain {
+  font-size: 0.9rem;
+  color: #475569;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+  margin-top: 4px;
+}
+
+/* フッター */
+.app-footer {
+  background: #ffffff;
+  border-top: 2px solid #e2e8f0;
+  padding: 20px 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+/* アニメーション */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes floatSmall {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -6px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   印刷専用スタイル (@media print)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 15mm 10mm 15mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.4;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* 画面UIをすべて隠す */
+  .app-header,
+  .mode-tabs-wrapper,
+  .subject-nav,
+  .digital-view,
+  .print-control-card,
+  .app-footer,
+  #confetti-canvas {
+    display: none !important;
+  }
+
+  .print-view {
+    display: block !important;
+  }
+
+  .worksheet-preview-container {
+    gap: 0;
+    margin: 0;
+  }
+
+  .a4-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: auto !important;
+    page-break-after: always;
+  }
+
+  .a4-sheet:last-child {
+    page-break-after: avoid;
+  }
+
+  .ws-choices-box {
+    background: transparent !important;
+    border: 1px dashed #333 !important;
+  }
+
+  .ws-ans-explain {
+    background: transparent !important;
+    border-left: 2px solid #333 !important;
+    color: #000 !important;
+  }
+
+  .ws-answer-sheet .ws-title-group h2,
+  .ws-ans-correct {
+    color: #000 !important;
+  }
+
+  .ws-answer-sheet {
+    border-top: none !important;
+  }
+
+  .ws-answer-sheet .ws-header {
+    border-bottom: 3px double #000 !important;
+  }
+}

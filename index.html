@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>わくわくスタディパーク | 小学生向け3D＆プリント学習アプリ</title>
+  <meta name="description" content="小学1〜6年生の国語・算数・理科・社会・英語を3Dキャラクターと一緒に学べる！紙で学べるA4学習プリント印刷機能つき。">
+  
+  <!-- Google Fonts: 親しみやすく読みやすい丸ゴシック -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- スタイルシート -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js (r128) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- canvas-confetti (お祝いの花火・紙吹雪) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="logo-area" onclick="location.reload()">
+        <span class="logo-icon">🚀</span>
+        <div class="logo-text">
+          <h1>わくわくスタディパーク <span class="logo-tag">MVP</span></h1>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- 学年セレクター -->
+        <div class="grade-selector-wrap">
+          <label for="grade-select">🎒 がくねん：</label>
+          <select id="grade-select" class="grade-select">
+            <option value="1">小学 1 年生</option>
+            <option value="2">小学 2 年生</option>
+            <option value="3">小学 3 年生</option>
+            <option value="4">小学 4 年生</option>
+            <option value="5">小学 5 年生</option>
+            <option value="6">小学 6 年生</option>
+          </select>
+        </div>
+
+        <!-- サウンド切替ボタン -->
+        <button id="btn-sound" class="btn-icon" title="おと：ON">🔊</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    
+    <!-- モード切り替えタブ -->
+    <div class="mode-tabs-wrapper">
+      <div class="mode-tabs">
+        <button id="tab-digital" class="tab-btn active">
+          <span>🎮</span> 3Dデジタルでまなぶ
+        </button>
+        <button id="tab-print" class="tab-btn">
+          <span>🖨️</span> まなびプリント（いんさつ）
+        </button>
+      </div>
+    </div>
+
+    <!-- 5科目セレクター -->
+    <nav class="subject-nav">
+      <div class="subject-grid">
+        <div class="subject-card japanese active" data-subject="japanese">
+          <span class="subject-emoji">📕</span>
+          <span class="subject-name">国語</span>
+          <span class="subject-ruby">こくご・かん字</span>
+        </div>
+        <div class="subject-card math" data-subject="math">
+          <span class="subject-emoji">📐</span>
+          <span class="subject-name">算数</span>
+          <span class="subject-ruby">さんすう・計算</span>
+        </div>
+        <div class="subject-card science" data-subject="science">
+          <span class="subject-emoji">🔬</span>
+          <span class="subject-name">理科</span>
+          <span class="subject-ruby">りか・自然</span>
+        </div>
+        <div class="subject-card social" data-subject="social">
+          <span class="subject-emoji">🗾</span>
+          <span class="subject-name">社会</span>
+          <span class="subject-ruby">しゃかい・地域</span>
+        </div>
+        <div class="subject-card english" data-subject="english">
+          <span class="subject-emoji">🔤</span>
+          <span class="subject-name">英語</span>
+          <span class="subject-ruby">えいご・English</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ====================================================================
+         モード 1: デジタル3D学習ビュー
+         ==================================================================== -->
+    <div id="digital-view" class="digital-view">
+      
+      <!-- 3D キャラクターステージ -->
+      <section class="stage-card">
+        <div class="stage-header">
+          <span class="stage-title">🤖 相棒の「ロボまる」</span>
+          <span class="badge-mascot">Three.js 3D</span>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="three-canvas"></canvas>
+          <div id="speech-bubble" class="speech-bubble">いっしょに かんがえよう！</div>
+        </div>
+
+        <div class="stage-footer">
+          <div class="stat-item">
+            <span>学年:</span>
+            <span id="stat-grade" class="stat-val">1年生</span>
+          </div>
+          <div class="stat-item">
+            <span>といた問題:</span>
+            <span id="stat-solved" class="stat-val">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- クイズ対話エリア -->
+      <section class="quiz-card">
+        
+        <!-- クイズ進行中画面 -->
+        <div id="quiz-play-area">
+          <div class="quiz-header">
+            <div class="quiz-meta">
+              <span id="quiz-grade-badge" class="quiz-badge">小学1年生 • 国語</span>
+              <span id="quiz-progress" class="quiz-progress-text">1 / 5問</span>
+            </div>
+            <div id="quiz-score" class="quiz-score-badge">⭐ 0</div>
+          </div>
+
+          <div class="progress-bar-wrap">
+            <div id="progress-fill" class="progress-bar-fill"></div>
+          </div>
+
+          <div class="question-box">
+            <span id="question-num-tag" class="question-num-tag">第 1 問</span>
+            <div id="question-text" class="question-text">もんだいを 読み込み中...</div>
+          </div>
+
+          <!-- 4択選択肢 -->
+          <div id="options-grid" class="options-grid"></div>
+
+          <!-- 正誤解説ボックス -->
+          <div id="feedback-box" class="feedback-box">
+            <div id="feedback-title" class="feedback-title">⭕️ だいせいかい！</div>
+            <div id="feedback-desc" class="feedback-desc">解説テキスト</div>
+          </div>
+
+          <div class="quiz-actions">
+            <button id="btn-next" class="btn-primary" style="display:none;">つぎのもんだいへ ➔</button>
+          </div>
+        </div>
+
+        <!-- クイズ完了・リザルト画面 -->
+        <div id="result-card" class="result-card">
+          <div class="result-trophy">🏆</div>
+          <h2 id="result-title" class="result-title">クリアおめでとう！</h2>
+          <p id="result-message" class="result-message">全問チャレンジ完了！よくがんばったね！</p>
+          
+          <div class="result-score-panel">
+            <div class="score-col">
+              <span class="score-lbl">獲得スコア</span>
+              <span id="result-score-val" class="score-val">100点</span>
+            </div>
+            <div class="score-col">
+              <span class="score-lbl">満点</span>
+              <span id="result-total-val" class="score-val">100点</span>
+            </div>
+          </div>
+
+          <div class="result-buttons">
+            <button id="btn-retry" class="btn-primary">🔄 もう一度ちょうせん</button>
+            <button id="btn-go-print" class="btn-secondary">🖨️ プリントを印刷する</button>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ====================================================================
+         モード 2: まなびプリント（印刷・紙学習）ビュー
+         ==================================================================== -->
+    <div id="print-view" class="print-view">
+      
+      <!-- 印刷コントロールパネル -->
+      <section class="print-control-card">
+        <div class="print-settings">
+          <div class="setting-item">
+            <label for="print-q-count">📝 出題数：</label>
+            <select id="print-q-count">
+              <option value="5" selected>5 問（ミニテスト）</option>
+              <option value="10">10 問（しっかり練習）</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="print-include-answer" checked>
+              <span>こたえ・解説シートも印刷する</span>
+            </label>
+          </div>
+          <button id="btn-shuffle-print" class="btn-secondary">🎲 べつの問題にする</button>
+        </div>
+
+        <button id="btn-do-print" class="print-btn-main">
+          <span>🖨️</span> A4プリントを印刷する（PDF保存）
+        </button>
+      </section>
+
+      <!-- A4 用紙プレビューコンテナ -->
+      <section id="worksheet-container" class="worksheet-preview-container">
+        <!-- JavaScriptで動的生成 -->
+      </section>
+    </div>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="app-footer">
+    <div class="container">
+      <p>© 2026 わくわくスタディパーク (WakuWaku Study Park) - 小学1〜6年生向け 自習＆プリント学習アプリ</p>
+      <p style="font-size: 0.8rem; margin-top: 4px; color: #94a3b8;">
+        ブラウザでそのまま解くことも、家庭や教室でA4印刷して学習することもできます。
+      </p>
+    </div>
+  </footer>
+
+  <!-- スクリプト -->
+  <script src="app.js"></script>
+</body>
+</html>
