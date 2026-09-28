@@ -1775,7 +1775,11 @@ class KahootBattleGame {
 
     // 該当学年・科目の問題を取得
     const gradeData = QUESTION_DATABASE[this.app.currentGrade];
-    const rawList = (gradeData && gradeData[this.app.currentSubject]) ? gradeData[this.app.currentSubject] : [];
+    let rawList = (gradeData && gradeData[this.app.currentSubject]) ? gradeData[this.app.currentSubject] : [];
+    if (!rawList || rawList.length === 0) {
+      // フォールバック（1年国語）
+      rawList = QUESTION_DATABASE[1].japanese;
+    }
     
     // シャッフルして5問
     this.questions = [...rawList].sort(() => Math.random() - 0.5).slice(0, 5);
@@ -1805,7 +1809,9 @@ class KahootBattleGame {
     const q = this.questions[this.currentIndex];
     const total = this.questions.length;
 
+    if (this.lobbyPanel) this.lobbyPanel.style.display = 'none';
     if (this.leaderboardPanel) this.leaderboardPanel.style.display = 'none';
+    if (this.podiumPanel) this.podiumPanel.style.display = 'none';
     if (this.arenaPanel) this.arenaPanel.style.display = 'flex';
     const overlay = document.getElementById('round-overlay');
     if (overlay) overlay.classList.remove('show');
@@ -1833,14 +1839,16 @@ class KahootBattleGame {
     if (qTextEl) qTextEl.textContent = q.question;
 
     // 4色ボタンテキストリセット
-    q.options.forEach((opt, idx) => {
-      const textEl = document.getElementById(`k-opt-${idx}`);
-      if (textEl) textEl.textContent = opt;
-    });
+    if (q && q.options) {
+      q.options.forEach((opt, idx) => {
+        const textEl = document.getElementById(`k-opt-${idx}`);
+        if (textEl) textEl.textContent = opt;
+      });
+    }
 
     this.kahootButtons.forEach((btn) => {
       btn.disabled = false;
-      btn.className = btn.className.replace(/ dimmed| correct-highlight/g, '');
+      btn.classList.remove('dimmed', 'correct-highlight');
     });
 
     // 3Dマスコット吹き出し
@@ -2285,24 +2293,36 @@ class StudyApp {
     this.currentMode = mode;
     this.soundFX.playClick();
 
-    this.tabDigital.classList.remove('active');
+    if (this.tabDigital) this.tabDigital.classList.remove('active');
     if (this.tabGame) this.tabGame.classList.remove('active');
-    this.tabPrint.classList.remove('active');
+    if (this.tabPrint) this.tabPrint.classList.remove('active');
 
-    this.digitalView.style.display = 'none';
-    if (this.gameView) this.gameView.classList.remove('show');
-    this.printView.classList.remove('show');
+    if (this.digitalView) this.digitalView.style.display = 'none';
+    if (this.gameView) {
+      this.gameView.classList.remove('show');
+      this.gameView.style.display = 'none';
+    }
+    if (this.printView) {
+      this.printView.classList.remove('show');
+      this.printView.style.display = 'none';
+    }
 
     if (mode === 'digital') {
-      this.tabDigital.classList.add('active');
-      this.digitalView.style.display = 'grid';
+      if (this.tabDigital) this.tabDigital.classList.add('active');
+      if (this.digitalView) this.digitalView.style.display = 'grid';
     } else if (mode === 'game') {
       if (this.tabGame) this.tabGame.classList.add('active');
-      if (this.gameView) this.gameView.classList.add('show');
+      if (this.gameView) {
+        this.gameView.classList.add('show');
+        this.gameView.style.display = 'block';
+      }
       if (this.game) this.game.showLobby();
     } else {
-      this.tabPrint.classList.add('active');
-      this.printView.classList.add('show');
+      if (this.tabPrint) this.tabPrint.classList.add('active');
+      if (this.printView) {
+        this.printView.classList.add('show');
+        this.printView.style.display = 'block';
+      }
       this.updateWorksheetPreview();
     }
   }

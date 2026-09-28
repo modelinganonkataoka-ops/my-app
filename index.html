@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   
   <!-- スタイルシート -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 
   <!-- Three.js (r128) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -56,13 +56,13 @@
     <!-- モード切り替えタブ -->
     <div class="mode-tabs-wrapper">
       <div class="mode-tabs">
-        <button id="tab-digital" class="tab-btn active">
+        <button id="tab-digital" class="tab-btn active" onclick="if(window.app) window.app.switchMode('digital');">
           <span>📖</span> じっくり練習
         </button>
-        <button id="tab-game" class="tab-btn">
+        <button id="tab-game" class="tab-btn" onclick="if(window.app) window.app.switchMode('game');">
           <span>⚡</span> Kahoot!ふう対戦ゲーム
         </button>
-        <button id="tab-print" class="tab-btn">
+        <button id="tab-print" class="tab-btn" onclick="if(window.app) window.app.switchMode('print');">
           <span>🖨️</span> まなびプリント（いんさつ）
         </button>
       </div>
@@ -235,7 +235,7 @@
             </div>
           </div>
 
-          <button id="btn-start-game" class="btn-start-game">
+          <button id="btn-start-game" class="btn-start-game" onclick="if(window.app && window.app.game) window.app.game.startNewGame();">
             <span>🚀</span> バトルスタート！
           </button>
         </div>
@@ -403,6 +403,6 @@
   </footer>
 
   <!-- スクリプト -->
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
