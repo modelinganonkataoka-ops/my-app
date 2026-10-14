@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   
   <!-- スタイルシート -->
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 
   <!-- Three.js (r128) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -27,7 +27,7 @@
       <div class="logo-area" onclick="location.reload()">
         <span class="logo-icon">🚀</span>
         <div class="logo-text">
-          <h1>わくわくスタディパーク <span class="logo-tag">MVP</span></h1>
+          <h1>わくわくスタディパーク <span class="logo-tag">Pro</span></h1>
         </div>
       </div>
 
@@ -64,6 +64,12 @@
         </button>
         <button id="tab-print" class="tab-btn" onclick="if(window.app) window.app.switchMode('print');">
           <span>🖨️</span> まなびプリント（いんさつ）
+        </button>
+        <button id="tab-teacher" class="tab-btn" onclick="if(window.app) window.app.switchMode('teacher');">
+          <span>✏️</span> 先生モード・問題作成
+        </button>
+        <button id="btn-open-ai-modal" class="tab-btn tab-btn-ai">
+          <span>🤖</span> AI問題生成
         </button>
       </div>
     </div>
@@ -107,13 +113,32 @@
       <!-- 3D キャラクターステージ -->
       <section class="stage-card">
         <div class="stage-header">
-          <span class="stage-title">🤖 相棒の「ロボまる」</span>
-          <span class="badge-mascot">Three.js 3D</span>
+          <span class="stage-title">🤖 相棒の「AIロボまる」</span>
+          <span class="badge-mascot">AIアシスタント 3D</span>
         </div>
 
         <div class="canvas-container">
           <canvas id="three-canvas"></canvas>
           <div id="speech-bubble" class="speech-bubble">いっしょに かんがえよう！</div>
+        </div>
+
+        <!-- AIロボまる サポートコントロール -->
+        <div class="robot-ai-controls">
+          <div class="ai-controls-title">🤖 AIロボまる サポート</div>
+          <div class="ai-btn-group">
+            <button id="btn-ai-hint" class="btn-ai" title="問題のヒントをもらう">
+              <span>💡</span> AIヒント
+            </button>
+            <button id="btn-ai-5050" class="btn-ai" title="ハズレの選択肢を2つ消去">
+              <span>🎯</span> 50:50 (2択)
+            </button>
+            <button id="btn-ai-chat" class="btn-ai" title="ロボまるに相談・おしゃべり">
+              <span>💬</span> 相談する
+            </button>
+            <button id="btn-ai-voice" class="btn-ai-toggle" title="音声読み上げ ON/OFF">
+              <span>🔊</span> 音声: ON
+            </button>
+          </div>
         </div>
 
         <div class="stage-footer">
@@ -198,14 +223,16 @@
         
         <!-- 1. ゲームロビー画面 -->
         <div id="game-lobby-panel" class="game-lobby-panel">
-          <div class="game-badge">⚡ スピード ＆ コンボバトル</div>
-          <h2 class="lobby-title">Kahoot! ふう クイズバトル！</h2>
-          <p class="lobby-desc">すばやく正解するほど高得点！ライバルと対決してみんなで表彰台を目指そう！</p>
+          <div class="lobby-header">
+            <div class="lobby-badge">Kahoot! Style</div>
+            <h2 class="lobby-title">スピード対戦！ クイズバトル！</h2>
+            <p class="lobby-desc">すばやく正解して高得点をゲット！連続正解でコンボボーナス！ライバルたちと1位を競い合おう！</p>
+          </div>
 
-          <div class="lobby-form">
-            <div class="form-group">
-              <label for="player-nickname">🏷️ あなたのニックネーム：</label>
-              <input type="text" id="player-nickname" class="player-input" value="チャレンジャー" maxlength="10">
+          <div class="lobby-settings-card">
+            <div class="setting-row">
+              <label for="input-nickname">👤 チャレンジャー名：</label>
+              <input type="text" id="input-nickname" class="input-nickname" value="チャレンジャー" maxlength="10">
             </div>
 
             <div>
@@ -366,8 +393,8 @@
           <div class="setting-item">
             <label for="print-q-count">📝 出題数：</label>
             <select id="print-q-count">
-              <option value="5" selected>5 問（ミニテスト）</option>
-              <option value="10">10 問（しっかり練習）</option>
+              <option value="5">5 問（ミニテスト）</option>
+              <option value="10" selected>10 問（しっかり練習）</option>
             </select>
           </div>
           <div class="setting-item">
@@ -390,7 +417,259 @@
       </section>
     </div>
 
+    <!-- ====================================================================
+         モード 4: 先生モード（問題作成・編集・インポート/エクスポート）
+         ==================================================================== -->
+    <div id="teacher-view" class="teacher-view" style="display:none;">
+      
+      <!-- 先生モード概要 & ツールバー -->
+      <div class="teacher-header-card">
+        <div class="teacher-header-info">
+          <h2>✏️ 先生モード（オリジナル問題作成・管理）</h2>
+          <p>先生自身が作成したオリジナルの問題を登録・編集したり、CSV/JSONでのインポート・エクスポートができます。登録した問題は「じっくり練習」「対戦ゲーム」「まなびプリント」すべてで出題されます！</p>
+        </div>
+        <div class="teacher-toolbar">
+          <button id="btn-export-json" class="btn-tool">📥 JSON保存</button>
+          <button id="btn-export-csv" class="btn-tool">📥 CSV保存 (Excel対応)</button>
+          <label class="btn-tool btn-file-label">
+            📤 ファイル読込 (JSON/CSV)
+            <input type="file" id="file-import" accept=".json,.csv" style="display:none;">
+          </label>
+          <button id="btn-open-text-import" class="btn-tool">📋 テキスト貼付</button>
+          <button id="btn-csv-template" class="btn-tool">📄 ひな形CSV</button>
+          <button id="btn-clear-custom" class="btn-tool danger">🔄 自作問題を全消去</button>
+        </div>
+      </div>
+
+      <div class="teacher-grid">
+        <!-- 1. 新規問題作成フォーム -->
+        <section class="teacher-form-card">
+          <div class="card-title-row">
+            <h3>➕ 新しい問題を作成する</h3>
+            <button id="btn-form-ai-assist" class="btn-ai-small" title="AIがこの科目の問題案を自動入力してくれます">
+              🤖 AIに下書きを作ってもらう
+            </button>
+          </div>
+
+          <form id="form-create-question">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="form-grade">学年：</label>
+                <select id="form-grade" class="form-control">
+                  <option value="1">小学 1 年生</option>
+                  <option value="2">小学 2 年生</option>
+                  <option value="3">小学 3 年生</option>
+                  <option value="4">小学 4 年生</option>
+                  <option value="5">小学 5 年生</option>
+                  <option value="6">小学 6 年生</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label for="form-subject">科目：</label>
+                <select id="form-subject" class="form-control">
+                  <option value="japanese">国語</option>
+                  <option value="math">算数</option>
+                  <option value="science">理科</option>
+                  <option value="social">社会</option>
+                  <option value="english">英語</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="form-question">問題文：</label>
+              <textarea id="form-question" class="form-control" rows="3" placeholder="例：日本で一番高い山の名前はどれかな？" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>選択肢（正解の選択肢にチェックをつけてください）：</label>
+              <div class="options-input-group">
+                <div class="option-input-row">
+                  <input type="radio" name="form-correct" value="0" id="opt-radio-0" checked>
+                  <label for="opt-radio-0" class="radio-label">正解</label>
+                  <span class="opt-tag">ア</span>
+                  <input type="text" id="form-opt-0" class="form-control" placeholder="選択肢 1（正解）" required>
+                </div>
+                <div class="option-input-row">
+                  <input type="radio" name="form-correct" value="1" id="opt-radio-1">
+                  <label for="opt-radio-1" class="radio-label">正解</label>
+                  <span class="opt-tag">イ</span>
+                  <input type="text" id="form-opt-1" class="form-control" placeholder="選択肢 2" required>
+                </div>
+                <div class="option-input-row">
+                  <input type="radio" name="form-correct" value="2" id="opt-radio-2">
+                  <label for="opt-radio-2" class="radio-label">正解</label>
+                  <span class="opt-tag">ウ</span>
+                  <input type="text" id="form-opt-2" class="form-control" placeholder="選択肢 3" required>
+                </div>
+                <div class="option-input-row">
+                  <input type="radio" name="form-correct" value="3" id="opt-radio-3">
+                  <label for="opt-radio-3" class="radio-label">正解</label>
+                  <span class="opt-tag">エ</span>
+                  <input type="text" id="form-opt-3" class="form-control" placeholder="選択肢 4" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="form-explanation">わかりやすい解説（正解・不正解時に表示）：</label>
+              <textarea id="form-explanation" class="form-control" rows="2" placeholder="例：富士山の標高は3776mで日本一です。"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-print-answer">プリント用の解答（省略時は正解選択肢と同じ）：</label>
+              <input type="text" id="form-print-answer" class="form-control" placeholder="例：富士山">
+            </div>
+
+            <button type="submit" id="btn-save-question" class="btn-primary w-100">
+              💾 この問題を保存・登録する
+            </button>
+          </form>
+        </section>
+
+        <!-- 2. 登録済み問題一覧 -->
+        <section class="teacher-list-card">
+          <div class="list-header-row">
+            <h3>📚 登録問題一覧</h3>
+            <span id="question-count-badge" class="count-badge">全 15 問</span>
+          </div>
+
+          <div class="list-filter-row">
+            <span id="filter-display-info" style="font-weight:700; color:var(--text-dark);">
+              小学1年生 • 国語
+            </span>
+          </div>
+
+          <div id="teacher-questions-list" class="teacher-questions-list">
+            <!-- JavaScriptで動的描画 -->
+          </div>
+        </section>
+      </div>
+
+    </div>
+
   </main>
+
+  <!-- ====================================================================
+       モーダル 1: AI問題無限生成モーダル
+       ==================================================================== -->
+  <div id="ai-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🤖</span> AI問題 無限ジェネレーター</div>
+        <button id="btn-close-ai-modal" class="modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          AIエンジンを使って、小学校の学年・科目に合わせたオリジナル問題を何問でも自動生成できます！
+        </p>
+
+        <!-- 方式 1: ビルトインAIで即座生成 -->
+        <div class="ai-box">
+          <h4>⚡ 1. ビルトインAIで即座生成（APIキー不要・完全無料）</h4>
+          <p class="ai-subtext">学習指導要領・小学校カリキュラムに基づいた多彩な問題をワンクリックで生成して問題プールに追加します。</p>
+          <div class="ai-action-row">
+            <label>生成する問題数：</label>
+            <select id="builtin-ai-count" class="form-control" style="width:120px;">
+              <option value="3">3 問</option>
+              <option value="5" selected>5 問</option>
+              <option value="10">10 問</option>
+            </select>
+            <button id="btn-run-builtin-ai" class="btn-primary">
+              🚀 今すぐAI生成して追加！
+            </button>
+          </div>
+        </div>
+
+        <!-- 方式 2: Gemini API連携 -->
+        <div class="ai-box">
+          <h4>✨ 2. Gemini API 連携（最新LLMで自由なテーマ生成）</h4>
+          <p class="ai-subtext">Gemini APIキーを入力することで、自由なトピック（例：「SDGs」「宇宙」「地域の歴史」等）に沿った問題を自動生成できます。</p>
+          <div class="form-group">
+            <label for="input-gemini-key">Gemini API Key：</label>
+            <input type="password" id="input-gemini-key" class="form-control" placeholder="AIzaSy...">
+          </div>
+          <div class="form-group">
+            <label for="input-ai-topic">指定テーマ（任意）：</label>
+            <input type="text" id="input-ai-topic" class="form-control" placeholder="例：光の性質、日本の祝日、四字熟語、分数">
+          </div>
+          <button id="btn-run-gemini-ai" class="btn-secondary">
+            🤖 Geminiで生成して追加
+          </button>
+        </div>
+
+        <!-- 方式 3: プロンプトコピー -->
+        <div class="ai-box">
+          <h4>📋 3. ChatGPT / Claude 用プロンプト生成</h4>
+          <p class="ai-subtext">他のAIツールに貼り付けるためのプロンプトをワンクリックでコピーできます。</p>
+          <button id="btn-copy-prompt" class="btn-secondary">
+            📋 プロンプトをクリップボードにコピー
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       モーダル 2: テキスト貼り付けインポートモーダル
+       ==================================================================== -->
+  <div id="text-import-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>📋</span> テキストから問題を一括インポート</div>
+        <button id="btn-close-import-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          JSON配列またはCSV形式のテキストを貼り付けて「インポート」を押すと、一括で問題が追加されます。
+        </p>
+        <div class="form-group">
+          <textarea id="import-text-content" class="form-control" rows="10" placeholder='[{"question":"...","options":["..."],"answerIndex":0}] または CSVテキスト'></textarea>
+        </div>
+        <button id="btn-do-text-import" class="btn-primary w-100">
+          📥 このテキストをインポートする
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       モーダル 3: ロボまるAIチャット・相談モーダル
+       ==================================================================== -->
+  <div id="robo-chat-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-card robo-chat-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🤖</span> AIロボまる とのおしゃべり・相談室</div>
+        <button id="btn-close-chat-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body chat-modal-body">
+        <div id="chat-messages-container" class="chat-messages-container">
+          <div class="chat-bubble robot">
+            <span class="chat-avatar">🤖</span>
+            <div class="chat-text">
+              こんにちは！ボクはキミの学習を応援するAI相棒「ロボまる」だよ！<br>
+              勉強でわからないことや、やる気が出ないときはいつでもボクに聞いてね！
+            </div>
+          </div>
+        </div>
+
+        <!-- クイック質問チップス -->
+        <div class="quick-chips">
+          <button class="chip-btn" data-msg="勉強に集中するコツをおしえて！">🎯 集中するコツ</button>
+          <button class="chip-btn" data-msg="算数が苦手なんだけどどうすればいい？">📐 算数がとくいになるには？</button>
+          <button class="chip-btn" data-msg="ロボまるのひみつをおしえて！">✨ ロボまるのひみつ</button>
+          <button class="chip-btn" data-msg="元気が出るメッセージをちょうだい！">💪 応援メッセージ</button>
+        </div>
+
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="ロボまるにメッセージをおくろう...">
+          <button id="btn-chat-send" class="btn-primary">送信</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- フッター -->
   <footer class="app-footer">
@@ -402,7 +681,10 @@
     </div>
   </footer>
 
-  <!-- スクリプト -->
-  <script src="app.js?v=2"></script>
+  <!-- スクリプト順序 -->
+  <script src="questions_db.js?v=3"></script>
+  <script src="ai_generator.js?v=3"></script>
+  <script src="teacher_manager.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
